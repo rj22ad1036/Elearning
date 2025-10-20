@@ -77,63 +77,54 @@
 //   );
 // }
 
+"use client";
+import { useState, useEffect } from "react";
+import { Trash2, Edit2, Check, X, Plus, Loader2 } from "lucide-react";
 
-
-
-"use client"
-import { useState, useEffect } from "react"
-import { Trash2, Edit2, Check, X, Plus, Loader2 } from "lucide-react"
-
-interface Note {
-  id: string
-  content: string
-  createdAt?: string
-}
-
-export default function Note({ courseId, videoId }: { courseId: string; videoId: string }) {
-  const [content, setContent] = useState("")
-  const [notes, setNotes] = useState<Note[]>([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
-  const [editingId, setEditingId] = useState<string | null>(null)
-  const [editContent, setEditContent] = useState("")
+export default function Note({ courseId, videoId }) {
+  const [content, setContent] = useState("");
+  const [notes, setNotes] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [editingId, setEditingId] = useState(null);
+  const [editContent, setEditContent] = useState("");
 
   // ✅ Fetch all notes for the current video
   useEffect(() => {
-    fetchNotes()
-  }, [videoId])
+    fetchNotes();
+  }, [videoId]);
 
   const fetchNotes = async () => {
-    const token = localStorage.getItem("token")
-    if (!videoId || !token) return
+    const token = localStorage.getItem("token");
+    if (!videoId || !token) return;
 
     try {
-      setLoading(true)
-      setError("")
+      setLoading(true);
+      setError("");
       const response = await fetch(`http://localhost:4000/notes/${videoId}`, {
         headers: { Authorization: `Bearer ${token}` },
-      })
-      const data = await response.json()
-      setNotes(Array.isArray(data) ? data : [])
+      });
+      const data = await response.json();
+      setNotes(Array.isArray(data) ? data : []);
     } catch (err) {
-      setError("Failed to load notes")
-      console.error("Error fetching notes:", err)
+      setError("Failed to load notes");
+      console.error("Error fetching notes:", err);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   // ✅ Save a new note
   const handleSave = async () => {
-    const token = localStorage.getItem("token")
+    const token = localStorage.getItem("token");
     if (!content.trim()) {
-      setError("Note cannot be empty")
-      return
+      setError("Note cannot be empty");
+      return;
     }
 
     try {
-      setLoading(true)
-      setError("")
+      setLoading(true);
+      setError("");
       const response = await fetch("http://localhost:4000/notes/create", {
         method: "POST",
         headers: {
@@ -141,48 +132,48 @@ export default function Note({ courseId, videoId }: { courseId: string; videoId:
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ content, videoId }),
-      })
+      });
 
-      if (!response.ok) throw new Error("Failed to save note")
+      if (!response.ok) throw new Error("Failed to save note");
 
-      setContent("")
-      await fetchNotes()
+      setContent("");
+      await fetchNotes();
     } catch (err) {
-      setError("Failed to save note")
-      console.error("Error saving note:", err)
+      setError("Failed to save note");
+      console.error("Error saving note:", err);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   // ✅ Delete a note
-  const handleDelete = async (noteId: string) => {
-    const token = localStorage.getItem("token")
+  const handleDelete = async (noteId) => {
+    const token = localStorage.getItem("token");
     try {
-      setError("")
+      setError("");
       const response = await fetch(`http://localhost:4000/notes/${noteId}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
-      })
+      });
 
-      if (!response.ok) throw new Error("Failed to delete note")
-      await fetchNotes()
+      if (!response.ok) throw new Error("Failed to delete note");
+      await fetchNotes();
     } catch (err) {
-      setError("Failed to delete note")
-      console.error("Error deleting note:", err)
+      setError("Failed to delete note");
+      console.error("Error deleting note:", err);
     }
-  }
+  };
 
   // ✅ Update a note
-  const handleUpdate = async (noteId: string) => {
-    const token = localStorage.getItem("token")
+  const handleUpdate = async (noteId) => {
+    const token = localStorage.getItem("token");
     if (!editContent.trim()) {
-      setError("Note cannot be empty")
-      return
+      setError("Note cannot be empty");
+      return;
     }
 
     try {
-      setError("")
+      setError("");
       const response = await fetch(`http://localhost:4000/notes/${noteId}`, {
         method: "PUT",
         headers: {
@@ -190,28 +181,28 @@ export default function Note({ courseId, videoId }: { courseId: string; videoId:
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ content: editContent }),
-      })
+      });
 
-      if (!response.ok) throw new Error("Failed to update note")
-      setEditingId(null)
-      setEditContent("")
-      await fetchNotes()
+      if (!response.ok) throw new Error("Failed to update note");
+      setEditingId(null);
+      setEditContent("");
+      await fetchNotes();
     } catch (err) {
-      setError("Failed to update note")
-      console.error("Error updating note:", err)
+      setError("Failed to update note");
+      console.error("Error updating note:", err);
     }
-  }
+  };
 
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return ""
-    const date = new Date(dateString)
+  const formatDate = (dateString) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
       hour: "2-digit",
       minute: "2-digit",
-    })
-  }
+    });
+  };
 
   return (
     <section className="mt-8 p-6 border border-slate-200 rounded-lg bg-white shadow-sm">
@@ -221,11 +212,17 @@ export default function Note({ courseId, videoId }: { courseId: string; videoId:
       </div>
 
       {/* Error Message */}
-      {error && <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">{error}</div>}
+      {error && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
+          {error}
+        </div>
+      )}
 
       {/* Add Note Section */}
       <div className="mb-6 p-4 bg-slate-50 rounded-lg border border-slate-200">
-        <label className="block text-sm font-medium text-slate-700 mb-2">Add a new note</label>
+        <label className="block text-sm font-medium text-slate-700 mb-2">
+          Add a new note
+        </label>
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
@@ -260,7 +257,9 @@ export default function Note({ courseId, videoId }: { courseId: string; videoId:
         </div>
       ) : notes.length === 0 ? (
         <div className="py-8 text-center">
-          <p className="text-slate-500 text-base">No notes yet. Start by adding your first note above!</p>
+          <p className="text-slate-500 text-base">
+            No notes yet. Start by adding your first note above!
+          </p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -296,14 +295,18 @@ export default function Note({ courseId, videoId }: { courseId: string; videoId:
                 </div>
               ) : (
                 <>
-                  <p className="text-slate-800 leading-relaxed mb-3">{note.content}</p>
+                  <p className="text-slate-800 leading-relaxed mb-3">
+                    {note.content}
+                  </p>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-slate-500">{formatDate(note.createdAt)}</span>
+                    <span className="text-xs text-slate-500">
+                      {formatDate(note.createdAt)}
+                    </span>
                     <div className="flex gap-2">
                       <button
                         onClick={() => {
-                          setEditingId(note.id)
-                          setEditContent(note.content)
+                          setEditingId(note.id);
+                          setEditContent(note.content);
                         }}
                         className="p-2 text-slate-600 hover:bg-slate-200 rounded transition-colors"
                         aria-label="Edit note"
@@ -326,5 +329,5 @@ export default function Note({ courseId, videoId }: { courseId: string; videoId:
         </div>
       )}
     </section>
-  )
+  );
 }

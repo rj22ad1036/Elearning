@@ -55,4 +55,49 @@ router.get("/:videoId", authMiddleware, async (req, res) => {
   }
 });
 
+// ✅ Update a note
+router.put("/:noteId", authMiddleware, async (req, res) => {
+  try {
+    const noteId = parseInt(req.params.noteId);
+    const { content } = req.body;
+
+    if (isNaN(noteId)) return res.status(400).json({ error: "Invalid noteId" });
+
+    if (!content.trim())
+      return res.status(400).json({ error: "Content cannot be empty" });
+
+    const note = await prisma.note.update({
+      where: {
+        id: noteId,
+        userId: req.userId, // Ensure user owns the note
+      },
+      data: { content },
+    });
+    res.json(note);
+  } catch (err) {
+    console.error("Error updating note:", err);
+    res.status(500).json({ error: "Failed to update note" });
+  }
+});
+
+// ✅ Delete a note
+router.delete("/:noteId", authMiddleware, async (req, res) => {
+  try {
+    const noteId = parseInt(req.params.noteId);
+
+    if (isNaN(noteId)) return res.status(400).json({ error: "Invalid noteId" });
+
+    await prisma.note.delete({
+      where: {
+        id: noteId,
+        userId: req.userId, // Ensure user owns the note
+      },
+    });
+    res.json({ message: "Note deleted successfully" });
+  } catch (err) {
+    console.error("Error deleting note:", err);
+    res.status(500).json({ error: "Failed to delete note" });
+  }
+});
+
 export default router;
