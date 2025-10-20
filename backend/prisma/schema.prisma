@@ -15,8 +15,10 @@ generator client {
 model User {
   id       Int      @id @default(autoincrement())
   email    String   @unique
+  username String?  // Optional username field
   password String
   notes    Note[]
+  scores   Score[]
 }
 
 model Course {
@@ -24,6 +26,8 @@ model Course {
   title    String
   description String
   videos   Video[]
+  quizzes  Quiz[]
+  scores   Score[]
 }
 
 model Video {
@@ -42,4 +46,24 @@ model Note {
   videoId  Int
   user     User   @relation(fields: [userId], references: [id])
   video    Video  @relation(fields: [videoId], references: [id])
+}
+model Quiz {
+  id        Int      @id @default(autoincrement())
+  question  String
+  optionA   String   // Option A
+  optionB   String   // Option B
+  optionC   String   // Option C
+  optionD   String   // Option D
+  answer    String   // Correct option (e.g. "A")
+  courseId  Int
+  course    Course   @relation(fields: [courseId], references: [id])
+}
+
+model Score {
+  id       Int    @id @default(autoincrement())
+  userId   Int
+  courseId Int
+  score    Int
+  user     User   @relation(fields: [userId], references: [id])
+  course   Course @relation(fields: [courseId], references: [id])
 }

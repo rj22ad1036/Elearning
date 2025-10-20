@@ -35,6 +35,29 @@ async function main() {
       },
     },
   });
+
+  await prisma.quiz.createMany({
+    data: [
+      {
+        question: "What does JS stand for?",
+        optionA: "Java Syntax",
+        optionB: "JavaScript",
+        optionC: "Jumpy Script",
+        optionD: "Just Script",
+        answer: "B",
+        courseId: 1,
+      },
+      {
+        question: "What is React used for?",
+        optionA: "Database",
+        optionB: "Frontend UI",
+        optionC: "Server",
+        optionD: "Networking",
+        answer: "B",
+        courseId: 2,
+      },
+    ],
+  });
 }
 
 main().finally(() => prisma.$disconnect());
