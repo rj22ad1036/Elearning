@@ -1,9 +1,8 @@
 import express from "express";
-import { PrismaClient } from "@prisma/client";
+import prisma from "../prisma/client.js";
 import { authMiddleware } from "../middleware/auth.js";
 
 const router = express.Router();
-const prisma = new PrismaClient();
 
 // Get logged-in user’s scores
 router.get("/me", authMiddleware, async (req, res) => {

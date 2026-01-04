@@ -1,8 +1,7 @@
 import express from "express";
-import { PrismaClient } from "@prisma/client";
+import prisma from "../prisma/client.js";
 import { authMiddleware } from "../middleware/auth.js";
 
-const prisma = new PrismaClient();
 const router = express.Router();
 
 // ✅ Get all quiz questions for a course

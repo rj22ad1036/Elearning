@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { PrismaClient } from "@prisma/client";
+import prisma from "./prisma/client.js";
 import authRoutes from "./routes/auth.js";
 import { authMiddleware } from "./middleware/auth.js";
 import quizRoutes from "./routes/quiz.js";
@@ -8,7 +8,6 @@ import scoreRoutes from "./routes/scores.js";
 import notesRoutes from "./routes/notes.js";
 
 const app = express();
-const prisma = new PrismaClient();
 
 app.use(cors());
 app.use(express.json());
@@ -21,6 +20,7 @@ app.use("/quiz", quizRoutes);
 
 // Notes routes
 app.use("/notes", notesRoutes);
+
 // Score routes
 app.use("/scores", scoreRoutes);
 
@@ -31,56 +31,62 @@ app.get("/test", (req, res) => {
 
 // ✅ Get all courses
 app.get("/courses", async (req, res) => {
-  const courses = await prisma.course.findMany({
-    include: { videos: true },
-  });
-  res.json(courses);
+  try {
+    const courses = await prisma.course.findMany({
+      include: { videos: true },
+    });
+    res.json(courses);
+  } catch (error) {
+    console.error("Error fetching courses:", error);
+    res.status(500).json({ error: "Failed to fetch courses" });
+  }
 });
 
 // ✅ Get course with videos
 app.get("/courses/:id", async (req, res) => {
-  const id = parseInt(req.params.id);
-  const course = await prisma.course.findUnique({
-    where: { id },
-    include: { videos: true },
-  });
-  res.json(course);
+  try {
+    const id = parseInt(req.params.id);
+    const course = await prisma.course.findUnique({
+      where: { id },
+      include: { videos: true },
+    });
+
+    if (!course) {
+      return res.status(404).json({ error: "Course not found" });
+    }
+
+    res.json(course);
+  } catch (error) {
+    console.error("Error fetching course:", error);
+    res.status(500).json({ error: "Failed to fetch course" });
+  }
 });
-// // Protected: Save note
-// app.post("/notes", authMiddleware, async (req, res) => {
-//   const { videoId, content } = req.body;
-//   const note = await prisma.note.create({
-//     data: { userId: req.userId, videoId, content },
-//   });
-//   res.json(note);
-// });
 
-// // Protected: Get notes for a video
-// app.get("/notes/:videoId", authMiddleware, async (req, res) => {
-//   const videoId = parseInt(req.params.videoId);
-//   const notes = await prisma.note.findMany({
-//     where: { videoId, userId: req.userId },
-//   });
-//   res.json(notes);
-// });
-
-// // Protected: Get all notes for a user
-// app.get("/notes/all", authMiddleware, async (req, res) => {
-//   const notes = await prisma.note.findMany({
-//     where: { userId: req.userId },
-//   });
-//   res.json(notes);
-// });
 // Protected: Get user's quiz scores
 app.get("/profile/scores", authMiddleware, async (req, res) => {
-  const scores = await prisma.score.findMany({
-    where: { userId: req.userId },
-  });
-  res.json(scores);
+  try {
+    const scores = await prisma.score.findMany({
+      where: { userId: req.userId },
+    });
+    res.json(scores);
+  } catch (error) {
+    console.error("Error fetching scores:", error);
+    res.status(500).json({ error: "Failed to fetch scores" });
+  }
+});
+
+// Global error handler
+app.use((error, req, res, next) => {
+  console.error("\n[GLOBAL ERROR HANDLER]");
+  console.error("  Method:", req.method);
+  console.error("  URL:", req.url);
+  console.error("  Message:", error.message);
+  console.error("  Stack:", error.stack);
+  res
+    .status(500)
+    .json({ error: "Internal server error", details: error.message });
 });
 
 app.listen(4000, () =>
   console.log("🚀 Server running on http://localhost:4000")
 );
-// Score routes
-app.use("/scores", scoreRoutes);

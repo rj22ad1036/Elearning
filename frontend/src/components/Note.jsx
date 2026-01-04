@@ -84,6 +84,7 @@ import { Trash2, Edit2, Check, X, Plus, Loader2 } from "lucide-react";
 export default function Note({ courseId, videoId }) {
   const [content, setContent] = useState("");
   const [notes, setNotes] = useState([]);
+  const [publicNotes, setPublicNotes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [editingId, setEditingId] = useState(null);
@@ -92,7 +93,20 @@ export default function Note({ courseId, videoId }) {
   // ✅ Fetch all notes for the current video
   useEffect(() => {
     fetchNotes();
+    fetchPublicNotes();
   }, [videoId]);
+
+  const fetchPublicNotes = async () => {
+    try {
+      const response = await fetch(
+        `http://localhost:4000/notes/public/video/${videoId}`
+      );
+      const data = await response.json();
+      setPublicNotes(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Error fetching public notes:", err);
+    }
+  };
 
   const fetchNotes = async () => {
     const token = localStorage.getItem("token");
@@ -190,6 +204,35 @@ export default function Note({ courseId, videoId }) {
     } catch (err) {
       setError("Failed to update note");
       console.error("Error updating note:", err);
+    }
+  };
+
+  // ✅ Make a note public with AI rating
+  const handleMakePublic = async (noteId) => {
+    const token = localStorage.getItem("token");
+    try {
+      setError("");
+      const response = await fetch(
+        `http://localhost:4000/notes/make-public/${noteId}`,
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.details || "Failed to make note public");
+      }
+
+      const data = await response.json();
+      const rating = data.rating || 4.0;
+      alert(`Note made public with rating: ⭐ ${rating.toFixed(1)}`);
+      await fetchNotes();
+      await fetchPublicNotes();
+    } catch (err) {
+      setError(err.message || "Failed to make note public");
+      console.error("Error making note public:", err);
     }
   };
 
@@ -302,7 +345,7 @@ export default function Note({ courseId, videoId }) {
                     <span className="text-xs text-slate-500">
                       {formatDate(note.createdAt)}
                     </span>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 items-center">
                       <button
                         onClick={() => {
                           setEditingId(note.id);
@@ -322,10 +365,132 @@ export default function Note({ courseId, videoId }) {
                       </button>
                     </div>
                   </div>
+
+                  {/* Action buttons row */}
+                  <div className="flex items-center gap-3 mt-3 text-sm">
+                    {!note.isPublic ? (
+                      <button
+                        onClick={() => handleMakePublic(note.id)}
+                        className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 hover:bg-blue-50 px-2 py-1 rounded transition-colors"
+                      >
+                        <Plus className="w-3 h-3" />
+                        Make Public & Get AI Rating
+                      </button>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-green-600 bg-green-50 px-2 py-1 rounded">
+                        <Check className="w-3 h-3" />
+                        Public • ⭐ {note.rating?.toFixed(1)}
+                      </span>
+                    )}
+
+                    {/* Share button */}
+                    {!note.shared ? (
+                      <button
+                        onClick={async () => {
+                          try {
+                            const token = localStorage.getItem("token");
+                            const res = await fetch(
+                              `http://localhost:4000/notes/share/${note.id}`,
+                              {
+                                method: "POST",
+                                headers: { Authorization: `Bearer ${token}` },
+                              }
+                            );
+                            const data = await res.json();
+                            if (res.ok) {
+                              navigator.clipboard.writeText(data.shareUrl);
+                              alert("Share link copied!");
+                              await fetchNotes();
+                            } else {
+                              alert(data.error || "Failed to share note");
+                            }
+                          } catch (err) {
+                            console.error("Error sharing note:", err);
+                            alert("Network error while sharing note");
+                          }
+                        }}
+                        className="text-slate-600 hover:text-slate-700 hover:bg-slate-100 px-2 py-1 rounded transition-colors"
+                      >
+                        Share
+                      </button>
+                    ) : (
+                      <span className="text-slate-600 text-xs">Shared</span>
+                    )}
+                  </div>
+
+                  {/* ✅ Share button / Shared link */}
+                  {!note.shared ? (
+                    <div className="mt-3">
+                      <button
+                        onClick={async () => {
+                          try {
+                            const token = localStorage.getItem("token");
+                            const res = await fetch(
+                              `http://localhost:4000/notes/share/${note.id}`,
+                              {
+                                method: "POST",
+                                headers: { Authorization: `Bearer ${token}` },
+                              }
+                            );
+                            const data = await res.json();
+                            if (res.ok) {
+                              navigator.clipboard.writeText(data.shareUrl);
+                              alert("Share link copied!");
+                              await fetchNotes();
+                            } else {
+                              alert(data.error || "Failed to share note");
+                            }
+                          } catch (err) {
+                            console.error("Error sharing note:", err);
+                            alert("Network error while sharing note");
+                          }
+                        }}
+                        className="mt-2 text-blue-600 underline text-sm"
+                      >
+                        Share Note
+                      </button>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-green-600 mt-2">
+                      Shared: {`http://localhost:3000/shared/${note.shareId}`}
+                    </p>
+                  )}
                 </>
               )}
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Community Notes Section */}
+      {publicNotes.length > 0 && (
+        <div className="mt-8 pt-6 border-t border-slate-200">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-1 h-6 bg-amber-500 rounded-full"></div>
+            <h3 className="text-lg font-semibold text-slate-900">
+              Community Notes
+            </h3>
+          </div>
+          <div className="grid gap-3">
+            {publicNotes.map((note) => (
+              <div
+                key={note.id}
+                className="p-4 bg-amber-50 border border-amber-200 rounded-lg hover:border-amber-300 transition-colors"
+              >
+                <p className="text-slate-800 leading-relaxed mb-2">
+                  {note.content}
+                </p>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-slate-600">
+                    by <strong>{note.user?.username || "Anonymous"}</strong>
+                  </span>
+                  <span className="inline-flex items-center gap-1 text-sm font-medium text-amber-700 bg-amber-100 px-2 py-1 rounded">
+                    <span>⭐ {note.rating?.toFixed(1)}</span>
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </section>
