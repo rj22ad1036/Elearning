@@ -1,63 +1,195 @@
 import { PrismaClient } from "@prisma/client";
+
 const prisma = new PrismaClient();
+
+// Simple helper to seed a handful of courses with videos and quizzes.
 async function main() {
-  await prisma.course.create({
-    data: {
-      title: "JavaScript Basics",
-      description: "Learn JS fundamentals",
+  // Clean out dependent tables first so we can re-run the seed without FK issues.
+  await prisma.note.deleteMany();
+  await prisma.score.deleteMany();
+  await prisma.quiz.deleteMany();
+  await prisma.video.deleteMany();
+  await prisma.course.deleteMany();
+
+  const courseData = [
+    {
+      title: "Full-Stack JavaScript Jumpstart",
+      description:
+        "Learn the modern JS toolchain from the browser to Node.js APIs.",
       videos: {
         create: [
           {
-            title: "Intro to JS",
-            url: "https://www.youtube.com/watch?v=W6NZfCO5SIk",
+            title: "What is JavaScript today?",
+            url: "https://samplelib.com/lib/preview/mp4/sample-5s.mp4",
           },
           {
-            title: "Variables",
-            url: "https://www.youtube.com/watch?v=Bv_5Zv5c-Ts",
+            title: "ES6+ essentials",
+            url: "https://samplelib.com/lib/preview/mp4/sample-10s.mp4",
+          },
+          {
+            title: "Async patterns in practice",
+            url: "https://samplelib.com/lib/preview/mp4/sample-15s.mp4",
+          },
+        ],
+      },
+      quizzes: {
+        create: [
+          {
+            question: "Which keyword declares a block-scoped variable?",
+            optionA: "var",
+            optionB: "let",
+            optionC: "const",
+            optionD: "int",
+            answer: "B",
+          },
+          {
+            question: "What does fetch() return?",
+            optionA: "A Promise",
+            optionB: "A Response",
+            optionC: "JSON",
+            optionD: "A callback",
+            answer: "A",
           },
         ],
       },
     },
-  });
-
-  await prisma.course.create({
-    data: {
-      title: "React Basics",
-      description: "Learn React fundamentals",
+    {
+      title: "React with Hooks Crash Course",
+      description:
+        "Build interactive UIs with hooks, context, and component patterns.",
       videos: {
         create: [
           {
-            title: "Intro to React",
-            url: "https://www.youtube.com/watch?v=Ke90Tje7VS0",
+            title: "Components and JSX",
+            url: "https://samplelib.com/lib/preview/mp4/sample-20s.mp4",
           },
-          { title: "JSX", url: "https://www.youtube.com/watch?v=DiIoWrOlIRw" },
+          {
+            title: "State, props, and lifting state",
+            url: "https://samplelib.com/lib/preview/mp4/sample-30s.mp4",
+          },
+          {
+            title: "Side effects with useEffect",
+            url: "https://samplelib.com/lib/preview/mp4/sample-40s.mp4",
+          },
+        ],
+      },
+      quizzes: {
+        create: [
+          {
+            question: "Which hook is used for side effects?",
+            optionA: "useState",
+            optionB: "useEffect",
+            optionC: "useMemo",
+            optionD: "useRef",
+            answer: "B",
+          },
+          {
+            question: "Props are best described as…",
+            optionA: "Mutable component state",
+            optionB: "Parent-to-child data",
+            optionC: "Global store",
+            optionD: "Event handlers only",
+            answer: "B",
+          },
         ],
       },
     },
-  });
+    {
+      title: "SQL for Beginners",
+      description:
+        "Query relational data with confidence using SELECT, JOIN, and GROUP BY.",
+      videos: {
+        create: [
+          {
+            title: "Database basics",
+            url: "https://samplelib.com/lib/preview/mp4/sample-50s.mp4",
+          },
+          {
+            title: "Filtering and sorting",
+            url: "https://samplelib.com/lib/preview/mp4/sample-1mb.mp4",
+          },
+          {
+            title: "Joins without fear",
+            url: "https://samplelib.com/lib/preview/mp4/sample-2mb.mp4",
+          },
+        ],
+      },
+      quizzes: {
+        create: [
+          {
+            question: "Which clause filters rows before grouping?",
+            optionA: "WHERE",
+            optionB: "HAVING",
+            optionC: "GROUP BY",
+            optionD: "ORDER BY",
+            answer: "A",
+          },
+          {
+            question: "An INNER JOIN returns…",
+            optionA: "All rows from both tables",
+            optionB: "Only matching rows",
+            optionC: "Only non-matching rows",
+            optionD: "Distinct rows",
+            answer: "B",
+          },
+        ],
+      },
+    },
+    {
+      title: "Node.js API Essentials",
+      description:
+        "Build RESTful APIs with Express, middleware, and proper error handling.",
+      videos: {
+        create: [
+          {
+            title: "Setting up Express",
+            url: "https://samplelib.com/lib/preview/mp4/sample-3mb.mp4",
+          },
+          {
+            title: "Routing patterns",
+            url: "https://samplelib.com/lib/preview/mp4/sample-5mb.mp4",
+          },
+          {
+            title: "Error handling middleware",
+            url: "https://samplelib.com/lib/preview/mp4/sample-7mb.mp4",
+          },
+        ],
+      },
+      quizzes: {
+        create: [
+          {
+            question: "Which object holds Express middleware?",
+            optionA: "req",
+            optionB: "res",
+            optionC: "next",
+            optionD: "app",
+            answer: "D",
+          },
+          {
+            question: "What does res.json() do?",
+            optionA: "Sends HTML",
+            optionB: "Parses JSON",
+            optionC: "Sends a JSON response",
+            optionD: "Reads a file",
+            answer: "C",
+          },
+        ],
+      },
+    },
+  ];
 
-  await prisma.quiz.createMany({
-    data: [
-      {
-        question: "What does JS stand for?",
-        optionA: "Java Syntax",
-        optionB: "JavaScript",
-        optionC: "Jumpy Script",
-        optionD: "Just Script",
-        answer: "B",
-        courseId: 1,
-      },
-      {
-        question: "What is React used for?",
-        optionA: "Database",
-        optionB: "Frontend UI",
-        optionC: "Server",
-        optionD: "Networking",
-        answer: "B",
-        courseId: 2,
-      },
-    ],
-  });
+  for (const course of courseData) {
+    await prisma.course.create({ data: course });
+  }
+
+  console.log(`Seeded ${courseData.length} courses with videos and quizzes.`);
 }
 
-main().finally(() => prisma.$disconnect());
+main()
+  .catch((error) => {
+    console.error("Failed to seed database:", error);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });
