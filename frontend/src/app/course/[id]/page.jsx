@@ -8,7 +8,7 @@
 //   const [selectedVideo, setSelectedVideo] = useState(null);
 
 //   useEffect(() => {
-//     fetch(`http://localhost:4000/courses/${id}`)
+//     fetch(`${process.env.BACKEND_URL}/courses/${id}`)
 //       .then((res) => res.json())
 //       .then((data) => {
 //         setCourse(data);
@@ -77,7 +77,9 @@ export default function CourseDetail({ params }) {
       try {
         setLoading(true);
         setError(null);
-        const response = await fetch(`http://localhost:4000/courses/${id}`);
+        const response = await fetch(
+          `${process.env.BACKEND_URL}/courses/${id}`
+        );
 
         if (!response.ok) {
           throw new Error(`Failed to load course: ${response.statusText}`);

@@ -43,9 +43,12 @@ export default function ProfilePage() {
       // Fetch notes
       try {
         console.log("Fetching notes...");
-        const notesResponse = await fetch("http://localhost:4000/notes/all", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const notesResponse = await fetch(
+          `${process.env.BACKEND_URL}/notes/all`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         console.log("Notes response status:", notesResponse.status);
 
         if (notesResponse.ok) {
@@ -65,9 +68,12 @@ export default function ProfilePage() {
       // Fetch scores
       try {
         console.log("Fetching scores...");
-        const scoresResponse = await fetch("http://localhost:4000/scores/me", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const scoresResponse = await fetch(
+          `${process.env.BACKEND_URL}/scores/me`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         console.log("Scores response status:", scoresResponse.status);
 
         if (scoresResponse.ok) {

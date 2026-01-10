@@ -7,7 +7,7 @@ export default function SharedNote({ params }) {
   const [note, setNote] = useState(null);
 
   useEffect(() => {
-    fetch(`http://localhost:4000/notes/public/${shareId}`)
+    fetch(`${process.env.BACKEND_URL}/notes/public/${shareId}`)
       .then((res) => {
         if (!res.ok) throw new Error("Not found");
         return res.json();

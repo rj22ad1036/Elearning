@@ -6,7 +6,7 @@ export default function HomePage() {
   const [courses, setCourses] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:4000/courses")
+    fetch(`${process.env.BACKEND_URL}/courses")
       .then((res) => res.json())
       .then((data) => setCourses(data));
   }, []);

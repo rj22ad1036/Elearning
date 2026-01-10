@@ -10,7 +10,7 @@
 //     const token = localStorage.getItem("token");
 //     if (!videoId || !token) return;
 
-//     fetch(`http://localhost:4000/notes/${videoId}`, {
+//     fetch(`${process.env.BACKEND_URL}/notes/${videoId}`, {
 //       headers: { Authorization: `Bearer ${token}` },
 //     })
 //       .then((res) => (res.ok ? res.json() : []))
@@ -23,7 +23,7 @@
 //     const token = localStorage.getItem("token");
 //     if (!content.trim()) return alert("Note cannot be empty.");
 
-//     await fetch("http://localhost:4000/notes/create", {
+//     await fetch(`${process.env.BACKEND_URL}/notes/create", {
 //       method: "POST",
 //       headers: {
 //         "Content-Type": "application/json",
@@ -35,7 +35,7 @@
 //     setContent("");
 
 //     // Refresh notes
-//     fetch(`http://localhost:4000/notes/${videoId}`, {
+//     fetch(`${process.env.BACKEND_URL}/notes/${videoId}`, {
 //       headers: { Authorization: `Bearer ${token}` },
 //     })
 //       .then((res) => res.json())
@@ -99,7 +99,7 @@ export default function Note({ courseId, videoId }) {
   const fetchPublicNotes = async () => {
     try {
       const response = await fetch(
-        `http://localhost:4000/notes/public/video/${videoId}`
+        `${process.env.BACKEND_URL}/notes/public/video/${videoId}`
       );
       const data = await response.json();
       setPublicNotes(Array.isArray(data) ? data : []);
@@ -115,9 +115,12 @@ export default function Note({ courseId, videoId }) {
     try {
       setLoading(true);
       setError("");
-      const response = await fetch(`http://localhost:4000/notes/${videoId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await fetch(
+        `${process.env.BACKEND_URL}/notes/${videoId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       const data = await response.json();
       setNotes(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -139,7 +142,7 @@ export default function Note({ courseId, videoId }) {
     try {
       setLoading(true);
       setError("");
-      const response = await fetch("http://localhost:4000/notes/create", {
+      const response = await fetch(`${process.env.BACKEND_URL}/notes/create`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -165,10 +168,13 @@ export default function Note({ courseId, videoId }) {
     const token = localStorage.getItem("token");
     try {
       setError("");
-      const response = await fetch(`http://localhost:4000/notes/${noteId}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await fetch(
+        `${process.env.BACKEND_URL}/notes/${noteId}`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       if (!response.ok) throw new Error("Failed to delete note");
       await fetchNotes();
@@ -188,14 +194,17 @@ export default function Note({ courseId, videoId }) {
 
     try {
       setError("");
-      const response = await fetch(`http://localhost:4000/notes/${noteId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ content: editContent }),
-      });
+      const response = await fetch(
+        `${process.env.BACKEND_URL}/notes/${noteId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ content: editContent }),
+        }
+      );
 
       if (!response.ok) throw new Error("Failed to update note");
       setEditingId(null);
@@ -213,7 +222,7 @@ export default function Note({ courseId, videoId }) {
     try {
       setError("");
       const response = await fetch(
-        `http://localhost:4000/notes/make-public/${noteId}`,
+        `${process.env.BACKEND_URL}/notes/make-public/${noteId}`,
         {
           method: "POST",
           headers: { Authorization: `Bearer ${token}` },
@@ -390,7 +399,7 @@ export default function Note({ courseId, videoId }) {
                           try {
                             const token = localStorage.getItem("token");
                             const res = await fetch(
-                              `http://localhost:4000/notes/share/${note.id}`,
+                              `${process.env.BACKEND_URL}/notes/share/${note.id}`,
                               {
                                 method: "POST",
                                 headers: { Authorization: `Bearer ${token}` },
@@ -426,7 +435,7 @@ export default function Note({ courseId, videoId }) {
                           try {
                             const token = localStorage.getItem("token");
                             const res = await fetch(
-                              `http://localhost:4000/notes/share/${note.id}`,
+                              `${process.env.BACKEND_URL}/notes/share/${note.id}`,
                               {
                                 method: "POST",
                                 headers: { Authorization: `Bearer ${token}` },

@@ -9,7 +9,7 @@
 //   useEffect(() => {
 //     console.log("Fetching leaderboard for course ID:", id);
 
-//     fetch(`http://localhost:4000/scores/leaderboard/${id}`)
+//     fetch(`${process.env.BACKEND_URL}/scores/leaderboard/${id}`)
 //       .then((res) => {
 //         console.log("Leaderboard response status:", res.status);
 //         return res.json();
@@ -71,7 +71,7 @@ export default function ImprovedLeaderboard({ params }) {
         console.log("[v0] Fetching leaderboard for courseId:", courseId);
 
         const response = await fetch(
-          `http://localhost:4000/scores/leaderboard/${courseId}`
+          `${process.env.BACKEND_URL}/scores/leaderboard/${courseId}`
         );
         console.log("[v0] Response status:", response.status);
 
@@ -143,9 +143,7 @@ export default function ImprovedLeaderboard({ params }) {
               </h3>
               <p className="text-red-300 text-sm">{error}</p>
               <p className="text-red-400 text-xs mt-2">CourseId: {courseId}</p>
-              <p className="text-red-400 text-xs">
-                Make sure your backend is running on http://localhost:4000
-              </p>
+              <p className="text-red-400 text-xs"></p>
             </div>
           </div>
         </div>

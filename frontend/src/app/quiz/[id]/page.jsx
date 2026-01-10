@@ -9,7 +9,7 @@ export default function QuizPage() {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    fetch(`http://localhost:4000/quiz/${id}`, {
+    fetch(`${process.env.BACKEND_URL}/quiz/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
@@ -27,7 +27,7 @@ export default function QuizPage() {
       answer,
     }));
 
-    const res = await fetch("http://localhost:4000/quiz/submit", {
+    const res = await fetch(`${process.env.BACKEND_URL}/quiz/submit`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -32,7 +32,7 @@ export default function HomePage() {
   const fetchCourses = async () => {
     try {
       console.log("Attempting to fetch courses from backend...");
-      const response = await fetch("http://localhost:4000/courses");
+      const response = await fetch(`${process.env.BACKEND_URL}/courses`);
       console.log("Response status:", response.status);
 
       if (response.ok) {

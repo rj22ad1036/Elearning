@@ -1,4 +1,4 @@
-import Notes from "@/components/Notes";
+import Notes from "@/components/Note";
 
 export default function VideoPage({ params }) {
   const { vid } = params;
