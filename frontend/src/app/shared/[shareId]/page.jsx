@@ -1,8 +1,9 @@
 "use client";
-import { useEffect, useState } from "react";
+
+import { use, useEffect, useState } from "react";
 
 export default function SharedNote({ params }) {
-  const { shareId } = params;
+  const { shareId } = use(params);
   const [note, setNote] = useState(null);
 
   useEffect(() => {
